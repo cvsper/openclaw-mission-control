@@ -6,14 +6,14 @@ import {
   Activity,
   BarChart3,
   Bot,
-  Boxes,
+  Brain,
   CheckCircle2,
   Folder,
   Building2,
   LayoutGrid,
+  MessageSquare,
   Network,
   Settings,
-  Store,
   Tags,
 } from "lucide-react";
 
@@ -59,11 +59,16 @@ export function DashboardSidebar() {
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-slate-200 bg-white">
-      <div className="flex-1 px-3 py-4">
-        <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Navigation
-        </p>
-        <nav className="mt-3 space-y-4 text-sm">
+      <div className="flex items-center gap-2.5 border-b border-slate-200 px-5 py-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white font-bold text-sm">
+          N
+        </div>
+        <span className="font-heading text-lg font-semibold text-slate-900 tracking-tight">
+          Nexus
+        </span>
+      </div>
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="space-y-4 text-sm">
           <div>
             <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Overview
@@ -74,7 +79,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname === "/dashboard"
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -86,12 +91,36 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/activity")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
                 <Activity className="h-4 w-4" />
                 Live feed
+              </Link>
+              <Link
+                href="/messages"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/messages")
+                    ? "bg-violet-100 text-violet-800 font-medium"
+                    : "hover:bg-slate-100",
+                )}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Messages
+              </Link>
+              <Link
+                href="/memory"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/memory")
+                    ? "bg-violet-100 text-violet-800 font-medium"
+                    : "hover:bg-slate-100",
+                )}
+              >
+                <Brain className="h-4 w-4" />
+                Memory
               </Link>
             </div>
           </div>
@@ -106,7 +135,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/board-groups")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -118,7 +147,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/boards")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -130,7 +159,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/tags")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -142,7 +171,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/approvals")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -155,7 +184,7 @@ export function DashboardSidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                     pathname.startsWith("/custom-fields")
-                      ? "bg-blue-100 text-blue-800 font-medium"
+                      ? "bg-violet-100 text-violet-800 font-medium"
                       : "hover:bg-slate-100",
                   )}
                 >
@@ -164,43 +193,6 @@ export function DashboardSidebar() {
                 </Link>
               ) : null}
             </div>
-          </div>
-
-          <div>
-            {isAdmin ? (
-              <>
-                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                  Skills
-                </p>
-                <div className="mt-1 space-y-1">
-                  <Link
-                    href="/skills/marketplace"
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
-                      pathname === "/skills" ||
-                        pathname.startsWith("/skills/marketplace")
-                        ? "bg-blue-100 text-blue-800 font-medium"
-                        : "hover:bg-slate-100",
-                    )}
-                  >
-                    <Store className="h-4 w-4" />
-                    Marketplace
-                  </Link>
-                  <Link
-                    href="/skills/packs"
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
-                      pathname.startsWith("/skills/packs")
-                        ? "bg-blue-100 text-blue-800 font-medium"
-                        : "hover:bg-slate-100",
-                    )}
-                  >
-                    <Boxes className="h-4 w-4" />
-                    Packs
-                  </Link>
-                </div>
-              </>
-            ) : null}
           </div>
 
           <div>
@@ -213,7 +205,7 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/organization")
-                    ? "bg-blue-100 text-blue-800 font-medium"
+                    ? "bg-violet-100 text-violet-800 font-medium"
                     : "hover:bg-slate-100",
                 )}
               >
@@ -226,7 +218,7 @@ export function DashboardSidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                     pathname.startsWith("/gateways")
-                      ? "bg-blue-100 text-blue-800 font-medium"
+                      ? "bg-violet-100 text-violet-800 font-medium"
                       : "hover:bg-slate-100",
                   )}
                 >
@@ -240,7 +232,7 @@ export function DashboardSidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                     pathname.startsWith("/agents")
-                      ? "bg-blue-100 text-blue-800 font-medium"
+                      ? "bg-violet-100 text-violet-800 font-medium"
                       : "hover:bg-slate-100",
                   )}
                 >

@@ -21,9 +21,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Activity, PenSquare, Timer, Users } from "lucide-react";
+import { Activity, Bot, Brain, ListTodo, MessageSquare, PenSquare, Timer, Users } from "lucide-react";
 
 import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
+import { AgentStatusGrid } from "@/components/agents/AgentStatusGrid";
+import { useNexusOverview } from "@/hooks/use-bridge-data";
 import { DashboardShell } from "@/components/templates/DashboardShell";
 import DropdownSelect, {
   type DropdownSelectOption,
@@ -213,7 +215,7 @@ function KpiCard({
         <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
           {label}
         </p>
-        <div className="rounded-lg bg-blue-50 p-2 text-blue-600">{icon}</div>
+        <div className="rounded-lg bg-violet-50 p-2 text-violet-600">{icon}</div>
       </div>
       <div className="flex items-end gap-2">
         <h3 className="font-heading text-4xl font-bold text-slate-900">
@@ -225,7 +227,7 @@ function KpiCard({
       ) : null}
       <div className="mt-3 h-1 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600"
+          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-violet-600"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -359,6 +361,9 @@ export default function DashboardPage() {
     [filteredBoards],
   );
 
+  const nexusOverview = useNexusOverview();
+  const overview = nexusOverview.data ?? null;
+
   const metricsQuery = useDashboardMetricsApiV1MetricsDashboardGet<
     dashboardMetricsApiV1MetricsDashboardGetResponse,
     ApiError
@@ -444,7 +449,7 @@ export default function DashboardPage() {
                   Dashboard
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Monitor your mission control operations
+                  Agent Family Mission Control
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">
@@ -460,7 +465,7 @@ export default function DashboardPage() {
                   ariaLabel="Dashboard date range"
                   placeholder="Select range"
                   searchEnabled={false}
-                  triggerClassName="h-9 min-w-[150px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  triggerClassName="h-9 min-w-[150px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                   contentClassName="rounded-lg border border-slate-200"
                 />
                 <DropdownSelect
@@ -490,7 +495,7 @@ export default function DashboardPage() {
                   options={boardGroupOptions}
                   ariaLabel="Dashboard board group filter"
                   placeholder="All groups"
-                  triggerClassName="h-9 min-w-[170px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  triggerClassName="h-9 min-w-[170px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                   contentClassName="rounded-lg border border-slate-200"
                   searchEnabled={false}
                   disabled={boardGroupsQuery.isLoading}
@@ -511,7 +516,7 @@ export default function DashboardPage() {
                   options={boardOptions}
                   ariaLabel="Dashboard board filter"
                   placeholder="All boards"
-                  triggerClassName="h-9 min-w-[170px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  triggerClassName="h-9 min-w-[170px] rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                   contentClassName="rounded-lg border border-slate-200"
                   searchEnabled={false}
                   disabled={boardsQuery.isLoading || boardOptions.length <= 1}
@@ -536,6 +541,43 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="p-8">
+            {/* Bridge KPIs */}
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <KpiCard
+                label="Agents Online"
+                value={overview ? "6" : "--"}
+                icon={<Bot className="h-4 w-4" />}
+                progress={100}
+              />
+              <KpiCard
+                label="Unread Messages"
+                value={overview ? formatNumber(overview.unread_messages) : "--"}
+                icon={<MessageSquare className="h-4 w-4" />}
+                progress={overview ? Math.min(100, overview.unread_messages * 10) : 0}
+              />
+              <KpiCard
+                label="Hub Tasks Active"
+                value={overview?.hub ? formatNumber(overview.hub.active) : "--"}
+                icon={<ListTodo className="h-4 w-4" />}
+                progress={overview?.hub ? Math.min(100, (overview.hub.active / Math.max(overview.hub.total, 1)) * 100) : 0}
+              />
+              <KpiCard
+                label="Memory Health"
+                value={overview?.memory ? overview.memory.status : "--"}
+                sublabel={overview?.memory ? `${overview.memory.total_memories} memories` : undefined}
+                icon={<Brain className="h-4 w-4" />}
+                progress={overview?.memory?.status === "ok" || overview?.memory?.status === "healthy" ? 100 : 0}
+              />
+            </div>
+
+            {/* Agent Status Grid */}
+            <div className="mb-8">
+              <h3 className="mb-4 font-heading text-base font-semibold text-slate-900">
+                Agent Family
+              </h3>
+              <AgentStatusGrid />
+            </div>
+
             {metricsQuery.error ? (
               <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
                 {metricsQuery.error.message}
@@ -616,7 +658,7 @@ export default function DashboardPage() {
                         <Bar
                           dataKey="value"
                           name="Completed"
-                          fill="#2563eb"
+                          fill="#7c3aed"
                           radius={[6, 6, 0, 0]}
                         />
                       </BarChart>
@@ -664,7 +706,7 @@ export default function DashboardPage() {
                           type="monotone"
                           dataKey="value"
                           name="Hours"
-                          stroke="#1d4ed8"
+                          stroke="#6d28d9"
                           strokeWidth={2}
                           dot={false}
                         />
@@ -711,7 +753,7 @@ export default function DashboardPage() {
                           type="monotone"
                           dataKey="value"
                           name="Error rate"
-                          stroke="#1e40af"
+                          stroke="#7c3aed"
                           strokeWidth={2}
                           dot={false}
                         />
@@ -772,7 +814,7 @@ export default function DashboardPage() {
                           name="In progress"
                           stackId="wip"
                           fill="#bfdbfe"
-                          stroke="#1d4ed8"
+                          stroke="#6d28d9"
                           fillOpacity={0.8}
                         />
                         <Area

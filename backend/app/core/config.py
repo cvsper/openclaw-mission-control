@@ -69,6 +69,11 @@ class Settings(BaseSettings):
     # OpenClaw gateway runtime compatibility
     gateway_min_version: str = "2026.02.9"
 
+    # Bridge: external service URLs
+    zimemory_url: str = ""
+    hub_url: str = ""
+    cortex_metrics_path: str = "/cortex/metrics"
+
     # Logging
     log_level: str = "INFO"
     log_format: str = "text"

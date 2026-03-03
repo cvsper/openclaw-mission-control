@@ -30,6 +30,7 @@ from app.api.souls_directory import router as souls_directory_router
 from app.api.tags import router as tags_router
 from app.api.task_custom_fields import router as task_custom_fields_router
 from app.api.tasks import router as tasks_router
+from app.api.bridge import router as bridge_router
 from app.api.users import router as users_router
 from app.core.config import settings
 from app.core.error_handling import install_error_handling
@@ -445,7 +446,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 
 app = MissionControlFastAPI(
-    title="Mission Control API",
+    title="Nexus API",
     version="0.1.0",
     lifespan=lifespan,
     openapi_tags=OPENAPI_TAGS,
@@ -551,6 +552,7 @@ api_v1.include_router(tasks_router)
 api_v1.include_router(task_custom_fields_router)
 api_v1.include_router(tags_router)
 api_v1.include_router(users_router)
+api_v1.include_router(bridge_router)
 app.include_router(api_v1)
 
 add_pagination(app)
