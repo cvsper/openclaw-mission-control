@@ -26,6 +26,23 @@ class AgentMessage(BaseModel):
     timestamp: str
     read: bool = False
 
+    @classmethod
+    def from_zimemory(cls, data: dict[str, Any]) -> "AgentMessage":
+        """Create from ZimMemory inbox response format."""
+        created = data.get("created_at", "")
+        if isinstance(created, (int, float)):
+            from datetime import datetime, timezone
+            created = datetime.fromtimestamp(created, tz=timezone.utc).isoformat()
+        status = data.get("status", "unread")
+        return cls(
+            id=data["id"],
+            from_agent=data.get("from_agent", data.get("from", "")),
+            to_agent=data.get("to_agent", data.get("to", "")),
+            message=data.get("message", ""),
+            timestamp=str(created),
+            read=status == "read",
+        )
+
 
 class SendMessageRequest(BaseModel):
     from_agent: str

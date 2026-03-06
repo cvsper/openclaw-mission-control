@@ -44,7 +44,7 @@ async def get_memory_health() -> ZimMemoryHealth | None:
         data = resp.json()
         return ZimMemoryHealth(
             status=data.get("status", "ok"),
-            total_memories=data.get("total_memories", 0),
+            total_memories=data.get("memories", data.get("total_memories", 0)),
             uptime=data.get("uptime"),
         )
     except Exception:
@@ -92,27 +92,30 @@ async def get_agent_messages(agent_id: str) -> list[AgentMessage]:
     try:
         client = _get_client()
         resp = await client.get(
-            f"{settings.zimemory_url}/messages",
-            params={"agent": agent_id},
+            f"{settings.zimemory_url}/messages/inbox",
+            params={"agent_id": agent_id},
         )
         resp.raise_for_status()
         data = resp.json()
         messages = data if isinstance(data, list) else data.get("messages", [])
-        return [AgentMessage(**m) for m in messages]
+        return [AgentMessage.from_zimemory(m) for m in messages]
     except Exception:
         logger.warning("bridge.zimemory.messages_failed agent=%s", agent_id)
         return []
 
 
-async def get_unread_count() -> int:
+async def get_unread_count(agent_id: str = "dommo") -> int:
     if not settings.zimemory_url:
         return 0
     try:
         client = _get_client()
-        resp = await client.get(f"{settings.zimemory_url}/messages/unread-count")
+        resp = await client.get(
+            f"{settings.zimemory_url}/messages/unread-count",
+            params={"agent_id": agent_id},
+        )
         resp.raise_for_status()
         data = resp.json()
-        return data.get("count", 0)
+        return data.get("unread", 0)
     except Exception:
         logger.warning("bridge.zimemory.unread_count_failed")
         return 0
