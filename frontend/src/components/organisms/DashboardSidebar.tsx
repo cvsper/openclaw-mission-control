@@ -13,7 +13,9 @@ import {
   LayoutGrid,
   MessageSquare,
   Network,
+  Puzzle,
   Settings,
+  SlidersHorizontal,
   Tags,
 } from "lucide-react";
 
@@ -240,6 +242,30 @@ export function DashboardSidebar() {
                   Agents
                 </Link>
               ) : null}
+              <Link
+                href="/skills"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/skills")
+                    ? "bg-violet-100 text-violet-800 font-medium"
+                    : "hover:bg-slate-100",
+                )}
+              >
+                <Puzzle className="h-4 w-4" />
+                Skills
+              </Link>
+              <Link
+                href="/settings"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/settings")
+                    ? "bg-violet-100 text-violet-800 font-medium"
+                    : "hover:bg-slate-100",
+                )}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Settings
+              </Link>
             </div>
           </div>
         </nav>

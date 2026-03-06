@@ -18,7 +18,7 @@ export default function MemoryPage() {
   return (
     <DashboardShell>
       <SignedOut>
-        <SignedOutPanel message="Sign in to access memory." />
+        <SignedOutPanel message="Sign in to access memory." forceRedirectUrl="/memory" />
       </SignedOut>
       <SignedIn>
         <DashboardSidebar />

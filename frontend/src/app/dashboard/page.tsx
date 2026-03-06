@@ -21,7 +21,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Activity, Bot, Brain, ListTodo, MessageSquare, PenSquare, Timer, Users } from "lucide-react";
+import { Activity, Bot, Brain, ListTodo, MessageSquare, PenSquare, Sparkles, Timer, Users } from "lucide-react";
 
 import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
 import { AgentStatusGrid } from "@/components/agents/AgentStatusGrid";
@@ -36,6 +36,10 @@ import {
   type listBoardGroupsApiV1BoardGroupsGetResponse,
   useListBoardGroupsApiV1BoardGroupsGet,
 } from "@/api/generated/board-groups/board-groups";
+import {
+  type listAgentsApiV1AgentsGetResponse,
+  useListAgentsApiV1AgentsGet,
+} from "@/api/generated/agents/agents";
 import {
   type listBoardsApiV1BoardsGetResponse,
   useListBoardsApiV1BoardsGet,
@@ -308,6 +312,36 @@ export default function DashboardPage() {
     },
   );
 
+  const agentsQuery = useListAgentsApiV1AgentsGet<
+    listAgentsApiV1AgentsGetResponse,
+    ApiError
+  >(
+    { limit: 50 },
+    {
+      query: {
+        enabled: Boolean(isSignedIn),
+        refetchInterval: 15_000,
+        refetchOnMount: "always",
+      },
+    },
+  );
+
+  const agentItems = useMemo(
+    () =>
+      agentsQuery.data?.status === 200
+        ? (agentsQuery.data.data.items ?? [])
+        : [],
+    [agentsQuery.data],
+  );
+  const onlineAgentCount = useMemo(
+    () =>
+      agentItems.filter((a) => {
+        const s = (a.status ?? "").toLowerCase();
+        return s === "online" || s === "active" || s === "idle" || s === "standby";
+      }).length,
+    [agentItems],
+  );
+
   const boards = useMemo(
     () =>
       boardsQuery.data?.status === 200
@@ -545,9 +579,10 @@ export default function DashboardPage() {
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 label="Agents Online"
-                value={overview ? "6" : "--"}
+                value={agentItems.length > 0 ? formatNumber(onlineAgentCount) : "--"}
+                sublabel={agentItems.length > 0 ? `${agentItems.length} total registered` : undefined}
                 icon={<Bot className="h-4 w-4" />}
-                progress={100}
+                progress={agentItems.length > 0 ? Math.round((onlineAgentCount / agentItems.length) * 100) : 0}
               />
               <KpiCard
                 label="Unread Messages"
@@ -569,6 +604,37 @@ export default function DashboardPage() {
                 progress={overview?.memory?.status === "ok" || overview?.memory?.status === "healthy" ? 100 : 0}
               />
             </div>
+
+            {/* Cortex Metrics */}
+            {overview?.cortex && (
+              <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <KpiCard
+                  label="Retrieval Hit Rate"
+                  value={overview.cortex.retrieval_hit_rate != null ? formatPercent(overview.cortex.retrieval_hit_rate * 100) : "--"}
+                  icon={<Sparkles className="h-4 w-4" />}
+                  progress={overview.cortex.retrieval_hit_rate != null ? Math.round(overview.cortex.retrieval_hit_rate * 100) : 0}
+                />
+                <KpiCard
+                  label="Corrections Detected"
+                  value={formatNumber(overview.cortex.corrections_detected)}
+                  icon={<Activity className="h-4 w-4" />}
+                  progress={Math.min(100, overview.cortex.corrections_detected * 10)}
+                />
+                <KpiCard
+                  label="Total Prompts"
+                  value={formatNumber(overview.cortex.total_prompts)}
+                  icon={<MessageSquare className="h-4 w-4" />}
+                  progress={Math.min(100, overview.cortex.total_prompts)}
+                />
+                <KpiCard
+                  label="Cortex Error Rate"
+                  value={overview.cortex.error_rate != null ? formatPercent(overview.cortex.error_rate * 100) : "--"}
+                  sublabel={overview.cortex.last_consolidation ? `Last consolidated: ${overview.cortex.last_consolidation}` : undefined}
+                  icon={<Activity className="h-4 w-4" />}
+                  progress={overview.cortex.error_rate != null ? Math.round(overview.cortex.error_rate * 100) : 0}
+                />
+              </div>
+            )}
 
             {/* Agent Status Grid */}
             <div className="mb-8">

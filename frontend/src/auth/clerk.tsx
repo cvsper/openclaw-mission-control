@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { getLocalAuthToken, isLocalAuthMode } from "@/auth/localAuth";
+import { getLocalAuthToken } from "@/auth/localAuth";
 
 function hasLocalAuthToken(): boolean {
   return Boolean(getLocalAuthToken());
@@ -19,8 +19,13 @@ export function SignedOut(props: { children: ReactNode }) {
   return hasLocalAuthToken() ? null : <>{props.children}</>;
 }
 
-export function SignInButton(_props: { children?: ReactNode }) {
-  return null;
+export function SignInButton(_props: {
+  children?: ReactNode;
+  mode?: string;
+  forceRedirectUrl?: string;
+  signUpForceRedirectUrl?: string;
+}) {
+  return <>{_props.children}</>;
 }
 
 export function SignOutButton(_props: { children?: ReactNode }) {
@@ -28,10 +33,21 @@ export function SignOutButton(_props: { children?: ReactNode }) {
 }
 
 export function useUser() {
+  const token = getLocalAuthToken();
+  const isSignedIn = Boolean(token);
   return {
     isLoaded: true,
-    isSignedIn: hasLocalAuthToken(),
-    user: null,
+    isSignedIn,
+    user: isSignedIn
+      ? {
+          id: "local-user",
+          fullName: "Local User",
+          firstName: "Local",
+          username: "local-user",
+          primaryEmailAddress: { emailAddress: "local@localhost" },
+          imageUrl: null,
+        }
+      : null,
   } as const;
 }
 
